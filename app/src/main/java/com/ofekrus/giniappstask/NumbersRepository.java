@@ -12,6 +12,7 @@ import com.ofekrus.giniappstask.network.RetrofitClient;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import retrofit2.Call;
@@ -33,15 +34,14 @@ public class NumbersRepository {
             @Override
             public void onResponse(Call<NumbersResponse> call, Response<NumbersResponse> response) {
                 if (response.isSuccessful()) {
-                    // TODO: check if isPairEqualToZero is true
-
-                    List<NumberItem> list = new ArrayList<>(response.body().getNumbers());
-
-                    Collections.sort(list);
-
-                    hasArrayTwoCandidatesEqualToZero(list);
-
-                    allNumbers.postValue(list);
+                    HashMap<Integer, Integer> map = new HashMap<>();
+                    for (int i = 0; i < response.body().getNumbers().size(); i++) {
+                        Integer num = response.body().getNumbers().get(i).getNumber();
+                        map.put(num, num);
+                    }
+                    Runnable setPairs = () -> SetListWithPairs(map, 0);
+                    new Thread(setPairs).start();
+//                    SetListWithPairs(map, 0);
                 }
             }
 
@@ -52,23 +52,21 @@ public class NumbersRepository {
         });
     }
 
-    private boolean hasArrayTwoCandidatesEqualToZero(List<NumberItem> list) {
-        int l, r;
-        l = 0;
-        r = list.size() - 1;
+    private void SetListWithPairs(HashMap map, int pairSum) {
+        List<NumberItem> numberItems = new ArrayList<>();
 
-        while (l < r) {
-            if (list.get(l).getNumber() + list.get(r).getNumber() == 0) {
-                list.get(l).setPairEqualToZero(true);
-                list.get(r).setPairEqualToZero(true);
-                return true;
-            } else if (list.get(l).getNumber() + list.get(r).getNumber() < 0) {
-                l++;
+        ArrayList<Integer> keys = new ArrayList<>(map.keySet());
+        for (int i = 0; i < keys.size(); i++) {
+            int currNum = keys.get(i);
+            int pair = pairSum - currNum;
+            if (map.containsKey(pair)) {
+                numberItems.add(new NumberItem(currNum, true));
             } else {
-                r--;
+                numberItems.add(new NumberItem(currNum, false));
             }
         }
-        return false;
+        Collections.sort(numberItems);
+        allNumbers.postValue(numberItems);
     }
 
     public LiveData<List<NumberItem>> getAllNumbers() {

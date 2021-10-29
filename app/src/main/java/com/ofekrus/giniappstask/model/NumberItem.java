@@ -3,7 +3,12 @@ package com.ofekrus.giniappstask.model;
 public class NumberItem  implements Comparable<NumberItem>{
 
     private int number;
-    private boolean isPairEqualToZero = false;
+    private boolean isPairEqualToZero;
+
+    public NumberItem(int number, boolean isPairEqualToZero) {
+        this.number = number;
+        this.isPairEqualToZero = isPairEqualToZero;
+    }
 
     @Override
     public int compareTo(NumberItem compareNum) {
