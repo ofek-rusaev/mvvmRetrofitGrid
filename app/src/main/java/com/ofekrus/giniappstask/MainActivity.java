@@ -32,6 +32,5 @@ public class MainActivity extends AppCompatActivity {
             GridView numberGrid = findViewById(R.id.grid_view_numbers);
             numberGrid.setAdapter((ListAdapter) numbersAdapter);
         });
-
     }
 }
