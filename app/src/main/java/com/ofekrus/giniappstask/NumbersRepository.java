@@ -59,7 +59,7 @@ public class NumbersRepository {
         for (int i = 0; i < keys.size(); i++) {
             int currNum = keys.get(i);
             int pair = pairSum - currNum;
-            if (map.containsKey(pair)) {
+            if (map.containsKey(pair) && currNum != pairSum) {
                 numberItems.add(new NumberItem(currNum, true));
             } else {
                 numberItems.add(new NumberItem(currNum, false));
