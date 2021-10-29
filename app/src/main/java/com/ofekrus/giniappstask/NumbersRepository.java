@@ -1,6 +1,5 @@
 package com.ofekrus.giniappstask;
 
-
 import android.app.Application;
 
 import androidx.lifecycle.LiveData;
@@ -34,14 +33,7 @@ public class NumbersRepository {
             @Override
             public void onResponse(Call<NumbersResponse> call, Response<NumbersResponse> response) {
                 if (response.isSuccessful()) {
-                    HashMap<Integer, Integer> map = new HashMap<>();
-                    for (int i = 0; i < response.body().getNumbers().size(); i++) {
-                        Integer num = response.body().getNumbers().get(i).getNumber();
-                        map.put(num, num);
-                    }
-                    Runnable setPairs = () -> SetListWithPairs(map, 0);
-                    new Thread(setPairs).start();
-//                    SetListWithPairs(map, 0);
+                    createPairsList(response.body().getNumbers(), 0);
                 }
             }
 
@@ -52,19 +44,32 @@ public class NumbersRepository {
         });
     }
 
-    private void SetListWithPairs(HashMap map, int pairSum) {
+    private void createPairsList(ArrayList<NumberItem> numbers, int pairSum) {
+        HashMap<Integer, Boolean> map = new HashMap<>();
         List<NumberItem> numberItems = new ArrayList<>();
 
-        ArrayList<Integer> keys = new ArrayList<>(map.keySet());
-        for (int i = 0; i < keys.size(); i++) {
-            int currNum = keys.get(i);
+        for (int i = 0; i < numbers.size(); i++) {
+            int currNum = numbers.get(i).getNumber();
             int pair = pairSum - currNum;
+
             if (map.containsKey(pair) && currNum != pairSum) {
                 numberItems.add(new NumberItem(currNum, true));
+                map.put(currNum, true);
+
+                // if found "pair" was marked false, need to update that it is equal to zero:
+                if (!map.get(pair)) {
+                    map.put(pair, true);
+                    int pos = numberItems.indexOf(new NumberItem(pair, false));
+                    numberItems.remove(pos);
+                    numberItems.add(new NumberItem(pair, true));
+                }
+
             } else {
                 numberItems.add(new NumberItem(currNum, false));
+                map.put(currNum, false);
             }
         }
+
         Collections.sort(numberItems);
         allNumbers.postValue(numberItems);
     }
