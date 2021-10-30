@@ -53,21 +53,21 @@ public class NumbersRepository {
             int pair = pairSum - currNum;
 
             if (map.containsKey(pair) && currNum != pairSum) {
-                numberItems.add(new NumberItem(currNum, true));
                 map.put(currNum, true);
 
-                // if found "pair" was marked false, need to update that it is equal to zero:
+                // if found "pair" was marked false -> update that it is equal to zero:
                 if (!map.get(pair)) {
                     map.put(pair, true);
-                    int pos = numberItems.indexOf(new NumberItem(pair, false));
-                    numberItems.remove(pos);
-                    numberItems.add(new NumberItem(pair, true));
                 }
 
             } else {
-                numberItems.add(new NumberItem(currNum, false));
                 map.put(currNum, false);
             }
+        }
+
+        ArrayList<Integer> mapKeys = new ArrayList<>(map.keySet());
+        for (Integer i: mapKeys) {
+            numberItems.add(new NumberItem(i, map.get(i)));
         }
 
         Collections.sort(numberItems);
