@@ -1,16 +1,12 @@
 package com.ofekrus.giniappstask;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
-import android.widget.GridView;
-import android.widget.ListAdapter;
 
-import com.ofekrus.giniappstask.model.NumberItem;
-
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -25,12 +21,17 @@ public class MainActivity extends AppCompatActivity {
                 ViewModelProvider.AndroidViewModelFactory.getInstance(MainActivity.this.getApplication()))
                 .get(NumbersViewModel.class);
 
+        NumbersAdapter numbersAdapter = new NumbersAdapter(MainActivity.this);
+
+        RecyclerView recyclerView = findViewById(R.id.recycler_view_numbers);
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+        recyclerView.setAdapter(numbersAdapter);
+
         numbersViewModel.fetchNumbers();
 
-        numbersViewModel.getAllNumbers().observe(MainActivity.this, (Observer<List<NumberItem>>) numberItems -> {
-            NumbersAdapter numbersAdapter = new NumbersAdapter(MainActivity.this, numberItems);
-            GridView numberGrid = findViewById(R.id.grid_view_numbers);
-            numberGrid.setAdapter((ListAdapter) numbersAdapter);
+        numbersViewModel.getAllNumbers().observe(MainActivity.this, numberItems -> {
+            numbersAdapter.submitList(numberItems);
+            numbersAdapter.notifyDataSetChanged();
         });
     }
 }
